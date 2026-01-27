@@ -1,0 +1,21 @@
+{
+  "company_number": "09370669",
+  "company_name": "ANTHROPIC UK LTD",
+  "company_status": "active",
+  "type": "ltd",
+  "date_of_creation": "2014-12-18",
+  "registered_office_address": {
+    "address_line_1": "123 High Street",
+    "address_line_2": "Floor 2",
+    "locality": "London",
+    "postal_code": "SW1A 1AA",
+    "country": "United Kingdom",
+    "premises": "Building A",
+    "region": "Greater London"
+  },
+  "accounts": {
+    "next_due": "2025-09-30",
+    "next_made_up_to": "2024-12-31"
+  },
+  "jurisdiction": "england-wales"
+}

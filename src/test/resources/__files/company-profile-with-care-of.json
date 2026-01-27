@@ -1,0 +1,18 @@
+{
+  "company_number": "12345678",
+  "company_name": "TEST COMPANY LTD",
+  "company_status": "active",
+  "type": "ltd",
+  "date_of_creation": "2020-01-01",
+  "registered_office_address": {
+    "care_of": "John Smith",
+    "po_box": "PO Box 123",
+    "premises": "Unit 5",
+    "address_line_1": "Industrial Estate",
+    "locality": "Manchester",
+    "region": "Greater Manchester",
+    "postal_code": "M1 1AA",
+    "country": "England"
+  },
+  "jurisdiction": "england-wales"
+}
