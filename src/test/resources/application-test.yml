@@ -4,7 +4,7 @@ spring:
 
 companies-house:
   api:
-    base-url: http://localhost:${wiremock.server.port:8089}
+    base-url: http://localhost:8089
     api-key: test-api-key
     connect-timeout-ms: 2000
     read-timeout-ms: 5000
