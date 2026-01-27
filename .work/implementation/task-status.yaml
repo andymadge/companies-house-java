@@ -35,10 +35,16 @@ tasks:
 
   T4:
     name: "Response DTOs"
-    status: "Not Started"
+    status: "Complete"
     complexity: "LOW"
-    files_created: []
-    tests_passing: null
+    completed_at: "2026-01-27T19:54:00Z"
+    files_created:
+      - src/main/java/com/example/companieshouse/dto/response/RegisteredAddressResponse.java
+      - src/main/java/com/example/companieshouse/dto/response/CompanyProfileResponse.java
+      - src/test/java/com/example/companieshouse/dto/response/RegisteredAddressResponseTest.java
+      - src/test/resources/__files/company-profile-success.json
+      - src/test/resources/__files/company-profile-with-care-of.json
+    tests_passing: true
 
   T5:
     name: "Custom Exceptions"

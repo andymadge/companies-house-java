@@ -67,3 +67,29 @@ files:
     created: "2026-01-27"
     task: "T3"
     purpose: "Tests for RestClient bean configuration (3 tests)"
+
+  # T4: Response DTOs
+  - path: "src/main/java/com/example/companieshouse/dto/response/RegisteredAddressResponse.java"
+    created: "2026-01-27"
+    task: "T4"
+    purpose: "DTO for registered office address with JSON deserialization"
+
+  - path: "src/main/java/com/example/companieshouse/dto/response/CompanyProfileResponse.java"
+    created: "2026-01-27"
+    task: "T4"
+    purpose: "DTO for full company profile API response"
+
+  - path: "src/test/java/com/example/companieshouse/dto/response/RegisteredAddressResponseTest.java"
+    created: "2026-01-27"
+    task: "T4"
+    purpose: "Tests for DTO JSON serialization/deserialization (5 tests)"
+
+  - path: "src/test/resources/__files/company-profile-success.json"
+    created: "2026-01-27"
+    task: "T4"
+    purpose: "Sample Companies House API response for testing"
+
+  - path: "src/test/resources/__files/company-profile-with-care-of.json"
+    created: "2026-01-27"
+    task: "T4"
+    purpose: "Sample API response with care_of and po_box fields"

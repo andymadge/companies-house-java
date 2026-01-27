@@ -1,6 +1,6 @@
 progress:
-  last_updated: "2026-01-27T19:51:00Z"
-  current_task: "T4"
+  last_updated: "2026-01-27T19:54:00Z"
+  current_task: "T5"
   current_phase: "Phase 1 - Tasks"
   status: "In Progress"
 
@@ -37,11 +37,16 @@ progress:
       notes: "3 tests pass - RestClient bean configured with timeouts and Basic auth"
 
     T4_response_dtos:
-      status: "Not Started"
-      files_to_create:
+      status: "Complete"
+      completed_at: "2026-01-27T19:54:00Z"
+      files_created:
         - src/main/java/com/example/companieshouse/dto/response/RegisteredAddressResponse.java
         - src/main/java/com/example/companieshouse/dto/response/CompanyProfileResponse.java
         - src/test/java/com/example/companieshouse/dto/response/RegisteredAddressResponseTest.java
+        - src/test/resources/__files/company-profile-success.json
+        - src/test/resources/__files/company-profile-with-care-of.json
+      tests_passing: true
+      notes: "5 tests pass - DTOs with full JSON serialization/deserialization, 100% coverage"
 
     T5_custom_exceptions:
       status: "Not Started"
@@ -96,13 +101,15 @@ progress:
     - task: "T3"
       completed_at: "2026-01-27T19:51:00Z"
       commit: "58d9d2e - T3: Implementation of RestClient configuration (GREEN)"
+    - task: "T4"
+      completed_at: "2026-01-27T19:54:00Z"
+      commit: "93a5082 - T4: Refactor - DTOs follow STD-003, comprehensive JavaDoc, 100% test coverage"
 
   work_in_progress:
-    - task: "T4"
-      status: "Starting Response DTOs TDD cycle"
+    - task: "T5"
+      status: "Starting Custom Exceptions TDD cycle"
 
   work_remaining:
-    - "T4: Response DTOs"
     - "T5: Custom exceptions"
     - "T6: Client interface"
     - "T7: Client success path"
@@ -112,4 +119,4 @@ progress:
 
   blockers: []
 
-  next_action: "Start T4 TDD cycle: RED - Create sample JSON response file (company-profile-success.json) and RegisteredAddressResponseTest.java to test JSON deserialization into DTOs"
+  next_action: "Start T5 TDD cycle: RED - Create ExceptionTests.java with tests for all custom exception types (CompaniesHouseApiException, CompanyNotFoundException, RateLimitExceededException, etc.)"
