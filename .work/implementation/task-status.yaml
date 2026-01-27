@@ -15,10 +15,13 @@ tasks:
 
   T2:
     name: "Configuration Properties Class"
-    status: "Not Started"
+    status: "Complete"
     complexity: "LOW"
-    files_created: []
-    tests_passing: null
+    completed_at: "2026-01-27T19:48:00Z"
+    files_created:
+      - src/main/java/com/example/companieshouse/config/CompaniesHouseProperties.java
+      - src/test/java/com/example/companieshouse/config/CompaniesHousePropertiesTest.java
+    tests_passing: true
 
   T3:
     name: "RestClient Bean Configuration"

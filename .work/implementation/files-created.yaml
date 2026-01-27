@@ -45,3 +45,14 @@ files:
     created: "2026-01-27"
     task: "T1"
     purpose: "Project README skeleton"
+
+  # T2: Configuration Properties
+  - path: "src/main/java/com/example/companieshouse/config/CompaniesHouseProperties.java"
+    created: "2026-01-27"
+    task: "T2"
+    purpose: "Configuration properties binding for companies-house.api.* settings"
+
+  - path: "src/test/java/com/example/companieshouse/config/CompaniesHousePropertiesTest.java"
+    created: "2026-01-27"
+    task: "T2"
+    purpose: "Tests for configuration binding and validation (8 tests, 100% coverage)"
