@@ -6,13 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repository contains a **5-prompt suite** for building a Companies House API integration in Java Spring Boot using Test-Driven Development. The prompts guide the complete development lifecycle from requirements gathering through implementation to testing.
 
-**Current State**: Prompts created, awaiting execution. This is a greenfield project with no implementation code yet.
+**Current State**: Prompts 01-03 complete. Requirements, architecture, and implementation plan documented. Ready for Prompt 04 (TDD Implementation).
 
 **Purpose**: Build a reusable client library to retrieve company registered addresses from the UK Companies House Public Data API.
 
 **Key Technologies**:
-- Java 17+ (Spring Boot 3.1+)
+- Java 17+ (Spring Boot 3.2+)
 - Maven
+- RestClient (Spring 6.1+) for HTTP calls
 - JUnit 5 + Mockito for testing
 - WireMock for API simulation
 - Lombok for reducing boilerplate
@@ -34,9 +35,9 @@ prompts/                          # 5 executable prompts for full development li
     └── STD-003-java-spring-boot-development-rubric.md  # Java/Spring standards
 
 docs/                             # Generated documentation (created by prompts)
-├── requirements.md              # (created by Prompt 01)
-├── architecture.md              # (created by Prompt 02)
-├── plan.md                       # (created by Prompt 03)
+├── requirements.md              # ✅ Created by Prompt 01
+├── architecture.md              # ✅ Created by Prompt 02
+├── plan.md                       # ✅ Created by Prompt 03
 └── test-report.md               # (created by Prompt 05)
 
 src/                              # Generated code (created by Prompt 04)
@@ -99,6 +100,8 @@ These design choices are **baked into all prompts** and don't require modificati
 
 | Decision | Value | Rationale |
 |----------|-------|-----------|
+| HTTP Client | RestClient (Spring 6.1+) | Modern API, RestTemplate in maintenance mode (ADR-001) |
+| API Endpoint | `/company/{companyNumber}` | Returns complete address fields including care_of, po_box |
 | Package structure | `com.example.companieshouse` | Generic, easy to rename when integrating |
 | Component type | Client library (no REST controllers) | Reusable across projects, maximum portability |
 | Build tool | Maven | Standard for Spring Boot, good ecosystem |
@@ -127,7 +130,7 @@ All code must follow **STD-003 Java Spring Boot Development Rubric**. Key princi
 
 ### Testing
 - **Test-Driven Development**: Always write tests first (RED), then code (GREEN)
-- **Unit tests**: Mock external dependencies (RestTemplate, HTTP calls)
+- **Unit tests**: Mock external dependencies (RestClient, HTTP calls)
 - **Integration tests**: Use WireMock to simulate Companies House API
 - **Coverage targets**: 80%+ overall, 90%+ on client implementation, 100% on DTOs/exceptions
 - **Test naming**: Use @DisplayName with clear descriptions of what's tested
@@ -310,8 +313,8 @@ Modify prompts **before running them**. Prompts read each other's outputs, so ch
 
 ## Next Steps
 
-1. **Start with Prompt 01**: Copy `prompts/01-requirements-gathering.md` to Claude Code
-2. **Read prompts/README.md** for detailed workflow guide
+1. **Run Prompt 04**: Copy `prompts/04-tdd-implementation.md` to Claude Code
+2. **Review docs/plan.md** for the 11-task TDD breakdown before starting
 3. **Reference STD-003** throughout for code quality standards
 4. **Track progress** in `.work/implementation/` during Prompt 04
 5. **Run full test suite** before finishing: `mvn clean test jacoco:report`
@@ -328,5 +331,6 @@ Modify prompts **before running them**. Prompts read each other's outputs, so ch
 ---
 
 **Last Updated**: 2026-01-27
-**Project Phase**: Prompts created, awaiting execution (Prompt 01)
-**Start Point**: `prompts/01-requirements-gathering.md`
+**Project Phase**: Planning complete, ready for implementation (Prompt 04)
+**Start Point**: `prompts/04-tdd-implementation.md`
+**Key Reference**: `docs/plan.md` (11-task TDD breakdown)
