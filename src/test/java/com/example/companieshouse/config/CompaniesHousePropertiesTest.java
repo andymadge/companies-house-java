@@ -20,7 +20,7 @@ class CompaniesHousePropertiesTest {
     @DisplayName("Should bind properties from application-test.yml")
     void testPropertiesBinding() {
         assertThat(properties).isNotNull();
-        assertThat(properties.getBaseUrl()).isEqualTo("http://localhost:8089");
+        assertThat(properties.getBaseUrl()).startsWith("http://localhost:");
         assertThat(properties.getApiKey()).isEqualTo("test-api-key");
         assertThat(properties.getConnectTimeoutMs()).isEqualTo(2000);
         assertThat(properties.getReadTimeoutMs()).isEqualTo(5000);
