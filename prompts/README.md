@@ -111,6 +111,8 @@ requirements.md   architecture.md    plan.md        src/ code       test-report.
 
 ## How to Use This Prompt Suite
 
+ALWAYS USE PLAN MODE IN CLAUDE CODE FOR ALL PROMPTS.
+
 ### Quick Start
 
 1. **Start Prompt 01**: Copy the entire prompt into Claude Code
