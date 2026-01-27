@@ -1,6 +1,6 @@
 progress:
-  last_updated: "2026-01-27T19:54:00Z"
-  current_task: "T5"
+  last_updated: "2026-01-27T20:03:00Z"
+  current_task: "T6"
   current_phase: "Phase 1 - Tasks"
   status: "In Progress"
 
@@ -49,8 +49,9 @@ progress:
       notes: "5 tests pass - DTOs with full JSON serialization/deserialization, 100% coverage"
 
     T5_custom_exceptions:
-      status: "Not Started"
-      files_to_create:
+      status: "Complete"
+      completed_at: "2026-01-27T20:03:00Z"
+      files_created:
         - src/main/java/com/example/companieshouse/client/exception/CompaniesHouseApiException.java
         - src/main/java/com/example/companieshouse/client/exception/CompanyNotFoundException.java
         - src/main/java/com/example/companieshouse/client/exception/RateLimitExceededException.java
@@ -58,6 +59,8 @@ progress:
         - src/main/java/com/example/companieshouse/client/exception/InvalidResponseException.java
         - src/main/java/com/example/companieshouse/client/exception/InvalidConfigurationException.java
         - src/test/java/com/example/companieshouse/client/exception/ExceptionTests.java
+      tests_passing: true
+      notes: "9 tests pass - Complete exception hierarchy with contextual messages"
 
     T6_client_interface:
       status: "Not Started"
@@ -104,13 +107,15 @@ progress:
     - task: "T4"
       completed_at: "2026-01-27T19:54:00Z"
       commit: "93a5082 - T4: Refactor - DTOs follow STD-003, comprehensive JavaDoc, 100% test coverage"
+    - task: "T5"
+      completed_at: "2026-01-27T20:03:00Z"
+      commit: "147524a - T5: Refactor - Exception hierarchy with contextual messages and 100% test coverage"
 
   work_in_progress:
-    - task: "T5"
-      status: "Starting Custom Exceptions TDD cycle"
+    - task: "T6"
+      status: "Starting Client Interface definition"
 
   work_remaining:
-    - "T5: Custom exceptions"
     - "T6: Client interface"
     - "T7: Client success path"
     - "T8: Client error handling"
@@ -119,4 +124,4 @@ progress:
 
   blockers: []
 
-  next_action: "Start T5 TDD cycle: RED - Create ExceptionTests.java with tests for all custom exception types (CompaniesHouseApiException, CompanyNotFoundException, RateLimitExceededException, etc.)"
+  next_action: "Create T6: CompaniesHouseClient interface - define getRegisteredAddress(String companyNumber) method with JavaDoc"

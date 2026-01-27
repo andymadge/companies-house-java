@@ -93,3 +93,39 @@ files:
     created: "2026-01-27"
     task: "T4"
     purpose: "Sample API response with care_of and po_box fields"
+
+  # T5: Custom Exceptions
+  - path: "src/main/java/com/example/companieshouse/client/exception/CompaniesHouseApiException.java"
+    created: "2026-01-27"
+    task: "T5"
+    purpose: "Base exception for all API-related errors"
+
+  - path: "src/main/java/com/example/companieshouse/client/exception/CompanyNotFoundException.java"
+    created: "2026-01-27"
+    task: "T5"
+    purpose: "Exception for 404 errors with company number context"
+
+  - path: "src/main/java/com/example/companieshouse/client/exception/RateLimitExceededException.java"
+    created: "2026-01-27"
+    task: "T5"
+    purpose: "Exception for 429 errors with retry-after duration"
+
+  - path: "src/main/java/com/example/companieshouse/client/exception/CompaniesHouseAuthenticationException.java"
+    created: "2026-01-27"
+    task: "T5"
+    purpose: "Exception for 401 authentication failures"
+
+  - path: "src/main/java/com/example/companieshouse/client/exception/InvalidResponseException.java"
+    created: "2026-01-27"
+    task: "T5"
+    purpose: "Exception for unparseable API responses"
+
+  - path: "src/main/java/com/example/companieshouse/client/exception/InvalidConfigurationException.java"
+    created: "2026-01-27"
+    task: "T5"
+    purpose: "Exception for invalid configuration at startup"
+
+  - path: "src/test/java/com/example/companieshouse/client/exception/ExceptionTests.java"
+    created: "2026-01-27"
+    task: "T5"
+    purpose: "Tests for all exception types (9 tests)"

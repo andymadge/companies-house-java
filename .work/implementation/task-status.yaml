@@ -48,10 +48,18 @@ tasks:
 
   T5:
     name: "Custom Exceptions"
-    status: "Not Started"
+    status: "Complete"
     complexity: "LOW"
-    files_created: []
-    tests_passing: null
+    completed_at: "2026-01-27T20:03:00Z"
+    files_created:
+      - src/main/java/com/example/companieshouse/client/exception/CompaniesHouseApiException.java
+      - src/main/java/com/example/companieshouse/client/exception/CompanyNotFoundException.java
+      - src/main/java/com/example/companieshouse/client/exception/RateLimitExceededException.java
+      - src/main/java/com/example/companieshouse/client/exception/CompaniesHouseAuthenticationException.java
+      - src/main/java/com/example/companieshouse/client/exception/InvalidResponseException.java
+      - src/main/java/com/example/companieshouse/client/exception/InvalidConfigurationException.java
+      - src/test/java/com/example/companieshouse/client/exception/ExceptionTests.java
+    tests_passing: true
 
   T6:
     name: "Client Interface"
