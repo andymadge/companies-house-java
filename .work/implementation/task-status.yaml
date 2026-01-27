@@ -1,0 +1,85 @@
+tasks:
+  T1:
+    name: "Project Setup and Build Configuration"
+    status: "Complete"
+    complexity: "LOW"
+    completed_at: "2026-01-27T19:37:00Z"
+    files_created:
+      - pom.xml
+      - src/main/java/com/example/companieshouse/CompaniesHouseApplication.java
+      - src/main/resources/application.yml
+      - src/test/resources/application-test.yml
+      - .gitignore
+      - README.md
+    tests_passing: true
+
+  T2:
+    name: "Configuration Properties Class"
+    status: "Not Started"
+    complexity: "LOW"
+    files_created: []
+    tests_passing: null
+
+  T3:
+    name: "RestClient Bean Configuration"
+    status: "Not Started"
+    complexity: "LOW"
+    files_created: []
+    tests_passing: null
+
+  T4:
+    name: "Response DTOs"
+    status: "Not Started"
+    complexity: "LOW"
+    files_created: []
+    tests_passing: null
+
+  T5:
+    name: "Custom Exceptions"
+    status: "Not Started"
+    complexity: "LOW"
+    files_created: []
+    tests_passing: null
+
+  T6:
+    name: "Client Interface"
+    status: "Not Started"
+    complexity: "TRIVIAL"
+    files_created: []
+    tests_passing: null
+
+  T7:
+    name: "Client Implementation - Success Path"
+    status: "Not Started"
+    complexity: "MEDIUM"
+    files_created: []
+    tests_passing: null
+
+  T8:
+    name: "Client Implementation - Error Handling"
+    status: "Not Started"
+    complexity: "MEDIUM"
+    files_created: []
+    tests_passing: null
+
+  T9:
+    name: "Global Exception Handler"
+    status: "Skipped"
+    complexity: "N/A"
+    notes: "Not needed for client library"
+    files_created: []
+    tests_passing: null
+
+  T10:
+    name: "Integration Tests with WireMock"
+    status: "Not Started"
+    complexity: "MEDIUM"
+    files_created: []
+    tests_passing: null
+
+  T11:
+    name: "Documentation and README"
+    status: "Not Started"
+    complexity: "LOW"
+    files_created: []
+    tests_passing: null

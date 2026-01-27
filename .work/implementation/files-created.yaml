@@ -1,0 +1,47 @@
+files:
+  # Progress tracking files
+  - path: ".work/implementation/progress.yaml"
+    created: "2026-01-27"
+    task: "Phase 0"
+    purpose: "Track current task and next action"
+
+  - path: ".work/implementation/task-status.yaml"
+    created: "2026-01-27"
+    task: "Phase 0"
+    purpose: "Status of all 11 tasks"
+
+  - path: ".work/implementation/files-created.yaml"
+    created: "2026-01-27"
+    task: "Phase 0"
+    purpose: "Catalog of created files"
+
+  # T1: Project Setup
+  - path: "pom.xml"
+    created: "2026-01-27"
+    task: "T1"
+    purpose: "Maven build configuration with Spring Boot 3.4.1, Java 21"
+
+  - path: "src/main/java/com/example/companieshouse/CompaniesHouseApplication.java"
+    created: "2026-01-27"
+    task: "T1"
+    purpose: "Spring Boot application entry point"
+
+  - path: "src/main/resources/application.yml"
+    created: "2026-01-27"
+    task: "T1"
+    purpose: "Default application configuration"
+
+  - path: "src/test/resources/application-test.yml"
+    created: "2026-01-27"
+    task: "T1"
+    purpose: "Test profile configuration"
+
+  - path: ".gitignore"
+    created: "2026-01-27"
+    task: "T1"
+    purpose: "Git ignore rules including .work/ directory"
+
+  - path: "README.md"
+    created: "2026-01-27"
+    task: "T1"
+    purpose: "Project README skeleton"
