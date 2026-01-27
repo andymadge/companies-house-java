@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: companies-house-client-test
+
+companies-house:
+  api:
+    base-url: http://localhost:${wiremock.server.port:8089}
+    api-key: test-api-key
+    connect-timeout-ms: 2000
+    read-timeout-ms: 5000

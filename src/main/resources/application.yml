@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: companies-house-client
+
+companies-house:
+  api:
+    base-url: https://api.company-information.service.gov.uk
+    api-key: ${COMPANIES_HOUSE_API_KEY:REPLACE_WITH_YOUR_API_KEY}
+    connect-timeout-ms: 5000
+    read-timeout-ms: 10000
