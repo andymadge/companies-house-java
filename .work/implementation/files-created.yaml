@@ -56,3 +56,14 @@ files:
     created: "2026-01-27"
     task: "T2"
     purpose: "Tests for configuration binding and validation (8 tests, 100% coverage)"
+
+  # T3: RestClient Configuration
+  - path: "src/main/java/com/example/companieshouse/config/CompaniesHouseConfig.java"
+    created: "2026-01-27"
+    task: "T3"
+    purpose: "RestClient bean with timeout configuration and Basic auth header"
+
+  - path: "src/test/java/com/example/companieshouse/config/CompaniesHouseConfigTest.java"
+    created: "2026-01-27"
+    task: "T3"
+    purpose: "Tests for RestClient bean configuration (3 tests)"
