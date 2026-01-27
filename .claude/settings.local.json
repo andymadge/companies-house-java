@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:developer.company-information.service.gov.uk)",
+      "WebFetch(domain:developer-specs.company-information.service.gov.uk)",
+      "Bash(find:*)",
+      "Bash(tree:*)",
+      "Bash(ls:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat\\(prompts\\): create 5-prompt suite for companies house api integration\n\nAdd complete prompt suite for building Companies House API integration:\n\n- 01-requirements-gathering.md: Requirements discovery via API analysis\n- 02-architecture-design.md: Layered architecture with 7 ADRs\n- 03-implementation-planning.md: 11-task TDD breakdown with dependencies\n- 04-tdd-implementation.md: Implementation with context compaction survival\n- 05-comprehensive-testing.md: Testing and quality verification\n\nAll prompts follow Anthropic XML prompting guidelines and enforce:\n- STD-001 prompt creation rubric patterns\n- STD-003 Java Spring Boot development standards\n- Test-Driven Development discipline\n- Measurable quality gates \\(80%+ coverage target\\)\n\nPrompt 04 includes full context compaction survival with progress\ntracking in .work/implementation/ enabling multi-session resumption.\n\nPackage: com.example.companieshouse\nBuild: Maven with application.yml configuration\nSecurity: No hardcoded API keys, environment-based config\n\nTotal: ~105KB of comprehensive prompts creating production-ready\nSpring Boot client library for company address lookup.\n\nCo-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit:*)"
+    ]
+  }
+}
