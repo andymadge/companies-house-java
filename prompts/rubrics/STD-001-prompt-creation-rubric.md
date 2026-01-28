@@ -16,11 +16,13 @@ Use this document as a reference when creating new prompts or enhancing existing
 
 1. [When to Use These Patterns](#when-to-use-these-patterns)
 2. [Core Principles](#core-principles)
+   - [Checkpoint Triggers (Canonical List)](#checkpoint-triggers-canonical-list)
 3. [Prompt Structure Template](#prompt-structure-template)
 4. [Context Compaction Survival Pattern](#context-compaction-survival-pattern)
 5. [Large File Handling Pattern](#large-file-handling-pattern)
 6. [Avoiding Arbitrary Limits Pattern](#avoiding-arbitrary-limits-pattern)
 7. [Progress Tracking Patterns](#progress-tracking-patterns)
+   - [Progress.yaml Consistency Rules](#progressyaml-consistency-rules)
 8. [Checkpoint Strategies](#checkpoint-strategies)
 9. [Begin Section Template](#begin-section-template)
 10. [Critical Reminders Template](#critical-reminders-template)
@@ -54,17 +56,33 @@ Use this document as a reference when creating new prompts or enhancing existing
 
 ## Core Principles
 
-| Principle                           | Description                                                                                      |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------ |
-| **Disk Over Memory**                | Write everything to `.work/` directory; context will be lost but disk persists                   |
-| **Progress After Every Unit**       | Update `progress.yaml` after every significant work unit to enable resumption                    |
-| **Summarise Then Discard**          | For large files: read chunk → extract key info → write summary → forget chunk                    |
-| **Reference Not Re-read**           | Once summarised, reference the summary file; only re-read original for quotes                    |
-| **Clear Next Action**               | Always document exactly what to do next for cold resumption                                      |
-| **Check Before Starting**           | First action is always checking for existing progress; never restart completed work              |
-| **Complete Then Move**              | Finish one unit of work completely before starting another                                       |
-| **No Arbitrary Limits**             | NEVER use `head -N` or `tail -N` to limit file discovery; process ALL files or show count + warn |
-| **Separate Work from Deliverables** | `.work/` is for internal tracking; `docs/` is for final artifacts humans review                  |
+| Principle                           | Description                                                                                               |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Disk Over Memory**                | Write everything to `.work/` directory; context will be lost but disk persists                            |
+| **Progress After Every Unit**       | Update `progress.yaml` after completing work AND before risky operations (see Checkpoint Triggers below)  |
+| **Summarise Then Discard**          | For large files: read chunk → extract key info → write summary → forget chunk                             |
+| **Reference Not Re-read**           | Once summarised, reference the summary file; only re-read original for quotes                             |
+| **Clear Next Action**               | Always document exactly what to do next for cold resumption                                               |
+| **Check Before Starting**           | First action is always checking for existing progress; never restart completed work                       |
+| **Complete Then Move**              | Finish one unit of work completely before starting another                                                |
+| **No Arbitrary Limits**             | NEVER use `head -N` or `tail -N` to limit file discovery; process ALL files or show count + warn          |
+| **Separate Work from Deliverables** | `.work/` is for internal tracking; `docs/` is for final artifacts humans review                           |
+| **Single Source of Truth**          | Store task status once in `tasks` map; derive work arrays on read, never store (see Progress.yaml Format) |
+| **Version Control .work/**          | `.work/` MUST be committed to git; enables team collaboration and machine switching                       |
+
+### Checkpoint Triggers (Canonical List)
+
+Update `progress.yaml` in these situations:
+
+| Trigger Type                  | When                                        | Examples                                                                             |
+| ----------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------ |
+| **Completion checkpoints**    | After completing any significant work unit  | Phase done, level done, file processed, document created, spec written               |
+| **Time-based checkpoints**    | Every 5-10 minutes of active work           | Regardless of completion state, save progress periodically                           |
+| **Pre-operation checkpoints** | Before starting any complex/risky operation | Before multi-step refactor, before bulk file operations, before data transformations |
+| **Discovery checkpoints**     | After discovering significant findings      | Critical issue found, unexpected pattern detected, blocker identified                |
+| **Transition checkpoints**    | Before moving to next phase/level/step      | Enables clean resumption at phase boundaries                                         |
+
+**Rule of thumb:** If you would be frustrated to lose this progress after context compaction, checkpoint NOW.
 
 ---
 
@@ -74,12 +92,12 @@ Use this document as a reference when creating new prompts or enhancing existing
 
 ### Directory Purposes
 
-| Directory              | Purpose                                | Visibility             | Contents                                        |
-| ---------------------- | -------------------------------------- | ---------------------- | ----------------------------------------------- |
-| **`.work/`**           | Internal tracking, compaction survival | Hidden (dot directory) | `progress.yaml`, inventories, intermediate data |
-| **`docs/qa-reports/`** | QA analysis deliverables               | Visible, reviewable    | `*-REPORT.md` files                             |
-| **`docs/analysis/`**   | Code analysis deliverables             | Visible, reviewable    | Analysis reports, findings                      |
-| **`docs/sysdocs/`**    | System documentation                   | Visible, reviewable    | Architecture, API, onboarding docs              |
+| Directory              | Purpose                                | Visibility             | Version Control   | Contents                                        |
+| ---------------------- | -------------------------------------- | ---------------------- | ----------------- | ----------------------------------------------- |
+| **`.work/`**           | Internal tracking, compaction survival | Hidden (dot directory) | **COMMIT TO GIT** | `progress.yaml`, inventories, intermediate data |
+| **`docs/qa-reports/`** | QA analysis deliverables               | Visible, reviewable    | Commit to git     | `*-REPORT.md` files                             |
+| **`docs/analysis/`**   | Code analysis deliverables             | Visible, reviewable    | Commit to git     | Analysis reports, findings                      |
+| **`docs/sysdocs/`**    | System documentation                   | Visible, reviewable    | Commit to git     | Architecture, API, onboarding docs              |
 
 ### Standard QA Output Structure
 
@@ -100,10 +118,15 @@ repository/
 
 ### Why This Matters
 
-1. **Dot directories are hidden** - Users won't find reports in file explorers
-2. **Source control** - Reports in `docs/` can be committed and tracked
+1. **Dot directories are hidden** - Users won't find reports in file explorers, but `.work/` is for progress tracking not deliverables
+2. **Source control** - Both `.work/` and `docs/` MUST be committed to git:
+   - `.work/progress.yaml` enables checkpoint recovery across machines and team members
+   - Switching machines or developers requires access to same progress state
+   - Without version control, checkpoint discipline breaks down
 3. **CI/CD integration** - Pipelines can publish `docs/` artifacts easily
-4. **Clear separation** - Working state vs deliverables are obviously different
+4. **Clear separation** - Working state (`.work/`) vs deliverables (`docs/`) are obviously different
+
+**Important:** Unlike typical temporary directories, `.work/` should NOT be in `.gitignore`. It contains the single source of truth for task state and must be shared across the team.
 
 ---
 
@@ -168,6 +191,7 @@ A well-structured Claude Code prompt follows this pattern:
     <path>[OUTPUT_DIR]/.work/</path>
     <purpose>Persistent work state that survives context compaction</purpose>
     <critical>Create this directory FIRST before any other work</critical>
+    <version_control>MUST be committed to git - enables team collaboration and machine switching</version_control>
     
     <required_files>
       <file name="progress.yaml">
@@ -206,42 +230,51 @@ A well-structured Claude Code prompt follows this pattern:
   <progress_tracking_schema>
 ```yaml
 # progress.yaml - UPDATE AFTER EVERY SIGNIFICANT WORK UNIT
+#
+# UPDATE PATTERN (2 atomic operations):
+# 1. Update task status in tasks map (tasks.T7.status = in_progress)
+# 2. Update pointer + next_action + timestamp (current.task = T7)
+#
+# DO NOT STORE: work_completed, work_in_progress, work_remaining arrays
+# (derive these on read by filtering tasks by status)
+#
 progress:
   last_updated: "[ISO DateTime]"
-  current_phase: "[Phase ID]"
-  current_step: "[Step ID]"
-  status: "In Progress | Blocked | Complete"
-  
-  # Task-specific phase tracking
+
+  # Navigation pointers (fast resumption)
+  current:
+    phase: "[Phase ID]"
+    task: "[Task ID or Step ID]"
+
+  # Resumption instruction
+  next_action: "[EXACTLY what to do next when resuming - be specific]"
+
+  # Source of truth: task/phase status
+  tasks:
+    [task_id]:
+      status: not_started | in_progress | complete | skipped
+      started_at: "[ISO DateTime if started]"
+      completed_at: "[ISO DateTime if complete]"
+      commit: "[Git SHA if complete]"
+      notes: "[Optional notes]"
+
+  # OR for phase-based tracking:
   phases:
     phase_0_discovery:
-      status: "Not Started | In Progress | Complete"
+      status: not_started | in_progress | complete
       # Phase-specific metrics
-      
+
     phase_1_[name]:
-      status: "Not Started | In Progress | Complete"
+      status: not_started | in_progress | complete
       # Phase-specific metrics
-      
-  # What's done
-  work_completed:
-    - item: "[Completed item]"
-      completed_at: "[DateTime]"
-      
-  # What's in progress
-  work_in_progress:
-    - item: "[Current item]"
-      status: "[What's done, what remains]"
-      
-  # What's remaining
-  work_remaining:
-    - "[List of pending items]"
-    
-  # Any blockers
-  blockers:
-    - "[Any issues preventing progress]"
-    
-  # CRITICAL: Exactly what to do next
-  next_action: "[EXACTLY what to do next when resuming - be specific]"
+
+  # Optional: blocker tracking
+  blockers: []
+
+# DERIVED VIEWS (compute on read, never store):
+#   work_completed = [k for k, v in tasks.items() if v.status == "complete"]
+#   work_in_progress = [k for k, v in tasks.items() if v.status == "in_progress"]
+#   work_remaining = [k for k, v in tasks.items() if v.status == "not_started"]
 ```
   </progress_tracking_schema>
   
@@ -269,15 +302,17 @@ progress:
      - Update progress.yaml immediately
      - Write next_action clearly for potential resumption
      
-  5. CHECKPOINT REQUIREMENTS:
-     - After EVERY [major deliverable created]
-     - After EVERY [phase/level] completed
-     - After EVERY [significant milestone]
-     - Before ANY [complex operation]
+  5. CHECKPOINT REQUIREMENTS (see Checkpoint Triggers in Core Principles):
+     - After completing any [significant work unit]
+     - Every 5-10 minutes of active work
+     - Before starting any complex/risky operation
+     - After discovering significant findings
+     - Before transitions to next [phase/level/step]
   </resumption_protocol>
   
   <compaction_safe_practices>
-    <practice>Write progress.yaml after EVERY [significant work unit]</practice>
+    <practice>Write progress.yaml using canonical Checkpoint Triggers (see Core Principles)</practice>
+    <practice>Always checkpoint: after completions, every 5-10 min, before risky operations</practice>
     <practice>Write summaries to disk, don't keep in context memory</practice>
     <practice>Reference .work/ files instead of re-reading large sources</practice>
     <practice>Complete one [unit] fully before starting another</practice>
@@ -657,9 +692,197 @@ progress:
     - "Documentation"
     
   blockers: []
-  
+
   next_action: "Complete Payment service implementation in phase 2, step 2.3. Read existing API from .work/payment-api.yaml and generate implementation."
+
+# CONSISTENCY CHECK (9 invariants):
+# ✓ current_phase="2" matches phases.phase_2.status="In Progress"
+# ✓ current_step="2.3" matches phases.phase_2.current_step="2.3"
+# ✓ next_action references "phase 2, step 2.3" (current pointers)
+# ✓ Only phase_2 has status="In Progress"
+# ✓ Completed phases (phase_1) have completed_at timestamps
+# ✓ work_completed contains completed phases/items
+# ✓ work_in_progress contains only current phase 2 work
+# ✓ work_remaining does not contain completed items
+# ✓ last_updated is present
 ```
+
+### Progress.yaml Format (Single Source of Truth)
+
+#### Design Philosophy
+
+Progress.yaml stores task status once in the `tasks` map. Everything else (work arrays, overall status) is derived on read. This eliminates conflict risk while maintaining fast resumption.
+
+**Key principle:** Store state once, derive views on demand.
+
+#### Format Structure
+
+**Stored Fields:**
+
+| Field             | Purpose                                  | Example                                              |
+| ----------------- | ---------------------------------------- | ---------------------------------------------------- |
+| `tasks.*.status`  | **SOURCE OF TRUTH** - Actual task state  | `in_progress`, `complete`, `not_started`, `skipped`  |
+| `phases.*.status` | **SOURCE OF TRUTH** - Actual phase state | `in_progress`, `complete`, `not_started`             |
+| `current.task`    | Navigation pointer for fast resumption   | `"T7"`                                               |
+| `current.phase`   | Navigation pointer for fast resumption   | `"Phase 1 - Tasks"`                                  |
+| `next_action`     | Resumption instruction (what to do next) | `"Implement T7: Create CompaniesHouseClientImpl..."` |
+| `last_updated`    | Audit timestamp                          | `"2026-01-27T20:05:00Z"`                             |
+| `blockers`        | Optional blocker tracking                | `[]` or list of blocker descriptions                 |
+
+**Derived Fields (NEVER store these):**
+
+| Field              | How to Derive                                                                      | Example                                |
+| ------------------ | ---------------------------------------------------------------------------------- | -------------------------------------- |
+| `work_completed`   | Filter tasks where `status == "complete"`                                          | `["T1", "T2", "T3", "T4", "T5", "T6"]` |
+| `work_in_progress` | Filter tasks where `status == "in_progress"`                                       | `["T7"]`                               |
+| `work_remaining`   | Filter tasks where `status == "not_started"`                                       | `["T8", "T10", "T11"]`                 |
+| `status` (overall) | `"in_progress"` if any in_progress, `"complete"` if all done, else `"not_started"` | `"in_progress"`                        |
+
+**Critical:** Arrays like `work_completed`, `work_in_progress`, `work_remaining` are **computed on read** from the tasks map. Never store them in the file - this eliminates synchronization conflicts.
+
+#### Format Template
+
+```yaml
+# progress.yaml - NEW FORMAT (Single Source of Truth)
+# Work arrays are DERIVED on read, never stored
+progress:
+  last_updated: "[ISO DateTime]"
+
+  # Navigation pointers (fast resumption)
+  current:
+    phase: "[Phase ID]"
+    task: "[Task ID]"
+
+  # Resumption instruction
+  next_action: "[EXACTLY what to do next when resuming]"
+
+  # Source of truth: task status (the ONLY place storing actual state)
+  tasks:
+    [task_id]:
+      status: not_started | in_progress | complete | skipped
+      started_at: "[ISO DateTime if in_progress or complete]"
+      completed_at: "[ISO DateTime if complete]"
+      commit: "[Git SHA if complete]"
+      notes: "[Optional notes]"
+      files_created: [...]  # Optional
+      files_to_create: [...] # Optional
+      tests_passing: true/false  # Optional
+
+  blockers: []
+
+# HOW TO DERIVE WORK ARRAYS (do this on read, never store):
+#   work_completed = [k for k, v in tasks.items() if v.status == "complete"]
+#   work_in_progress = [k for k, v in tasks.items() if v.status == "in_progress"]
+#   work_remaining = [k for k, v in tasks.items() if v.status == "not_started"]
+```
+
+#### Update Pattern (2 Atomic Operations)
+
+**Scenario:** Complete T6 → Start T7
+
+```yaml
+# BEFORE
+current:
+  task: "T6"
+tasks:
+  T6_client_interface:
+    status: in_progress
+    started_at: "2026-01-27T19:55:00Z"
+  T7_client_success_path:
+    status: not_started
+
+# AFTER (2 operations)
+
+# OPERATION 1: Update task status in tasks map
+tasks:
+  T6_client_interface:
+    status: complete  # ← Changed
+    started_at: "2026-01-27T19:55:00Z"
+    completed_at: "2026-01-27T20:04:00Z"  # ← Added
+    commit: "8f4e2c1"  # ← Added
+  T7_client_success_path:
+    status: in_progress  # ← Changed
+    started_at: "2026-01-27T20:05:00Z"  # ← Added
+
+# OPERATION 2: Update pointer + next_action + timestamp
+current:
+  task: "T7"  # ← Changed
+next_action: "Implement T7: Create CompaniesHouseClientImpl"  # ← Changed
+last_updated: "2026-01-27T20:05:00Z"  # ← Changed
+```
+
+**That's it.** No work arrays to synchronize. Just 2 atomic updates.
+
+
+#### Validation Rules (Simple)
+
+After updating progress.yaml, verify:
+
+- [ ] Exactly **ONE** task has `status: in_progress` (or zero if between tasks)
+- [ ] `current.task` matches the task with `status: in_progress`
+- [ ] `next_action` describes work for `current.task`
+- [ ] Completed tasks have `completed_at` timestamp
+- [ ] `last_updated` is current
+- [ ] **NO** `work_completed`, `work_in_progress`, or `work_remaining` arrays in file
+
+**That's it.** 6 checks instead of 9 invariants + 6-step sequence.
+
+#### Common Mistakes to Avoid
+
+| Mistake                                         | Why It's Wrong                       | Correct Approach                                                   |
+| ----------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------ |
+| Storing work arrays in file                     | Creates redundancy and conflict risk | Derive arrays on read from tasks                                   |
+| Multiple tasks with `status: in_progress`       | Unclear what's current               | Only ONE task should be `in_progress` at a time                    |
+| `current.task` doesn't match `in_progress` task | Pointer inconsistency                | Always update task status BEFORE updating pointer                  |
+| Forgetting to update `next_action`              | Stale resumption instruction         | Update `next_action` whenever `current.task` changes               |
+| Using uppercase status values                   | Inconsistent with convention         | Use lowercase: `in_progress`, `complete`, `not_started`, `skipped` |
+
+#### Derivation Logic for Claude
+
+When resuming work after context compaction, Claude computes derived views:
+
+```python
+# Read progress.yaml
+with open('.work/progress.yaml') as f:
+    data = yaml.safe_load(f)
+
+tasks = data['progress']['tasks']
+
+# Derive work arrays
+work_completed = [
+    {"task": k, "completed_at": v.get("completed_at"), "commit": v.get("commit")}
+    for k, v in tasks.items()
+    if v["status"] == "complete"
+]
+
+work_in_progress = [
+    {"task": k, "status": v.get("notes", "In progress")}
+    for k, v in tasks.items()
+    if v["status"] == "in_progress"
+]
+
+work_remaining = [
+    k for k, v in tasks.items()
+    if v["status"] == "not_started"
+]
+
+# Derive overall status
+if all(v["status"] in ["complete", "skipped"] for v in tasks.values()):
+    overall_status = "complete"
+elif any(v["status"] == "in_progress" for v in tasks.values()):
+    overall_status = "in_progress"
+else:
+    overall_status = "not_started"
+
+# Resume from current pointer
+current_task = data['progress']['current']['task']
+next_action = data['progress']['next_action']
+```
+
+**Claude doesn't need to write this code** - the resumption protocol just reads `current.task` and `next_action`, then checks task status as needed. Derived arrays are for human review only.
+
+---
+---
 
 ### Task-Specific Progress Extensions
 
@@ -707,13 +930,17 @@ phases:
 
 ### When to Checkpoint
 
-| Event                          | Action                               |
-| ------------------------------ | ------------------------------------ |
-| Phase/Level/Step completed     | Update progress.yaml, write summary  |
-| Major deliverable created      | Update progress.yaml, note file path |
-| Significant finding discovered | Write to findings file immediately   |
-| Before complex operation       | Save current state                   |
-| After 5-10 minutes of work     | Quick progress.yaml update           |
+**See canonical Checkpoint Triggers in Core Principles section above.**
+
+Summary of checkpoint actions:
+
+| Trigger Type                      | Action                                                                                                          |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Completion checkpoints            | Update progress.yaml with completed status, write summary                                                       |
+| Time-based checkpoints (5-10 min) | Quick progress.yaml update with current state                                                                   |
+| Pre-operation checkpoints         | Save current state before starting risky work                                                                   |
+| Discovery checkpoints             | Write findings to appropriate file immediately                                                                  |
+| Transition checkpoints            | Update phase status, document next_action clearly, **verify consistency** (see Progress.yaml Consistency Rules) |
 
 ### Checkpoint File Naming
 
@@ -764,8 +991,14 @@ CRITICAL: COMPACTION SURVIVAL
 =====================================
 This work WILL span multiple context compactions.
 
+CHECKPOINT PROGRESS.YAML:
+- After completing any significant work unit
+- Every 5-10 minutes of active work
+- Before starting complex/risky operations
+- After discovering significant findings
+- Before transitions to next phase/level/step
+
 ALWAYS:
-- Write progress to .work/progress.yaml after each significant step
 - Write summaries to .work/ directories, not to context memory
 - Complete one unit of work fully before starting another
 - Document next_action clearly for resumption
@@ -812,12 +1045,20 @@ Use this template for the `<critical_reminders>` section:
 1. **STATE IN FILES, NOT CONTEXT**
    - progress.yaml is truth
    - Context may compact any time
-   - Checkpoint after every [significant unit]
+   - Checkpoint: after completions, every 5-10 min, before risky ops, after findings, before transitions
+   - `.work/` directory MUST be committed to git for team collaboration and machine switching
 
 2. **CHECK BEFORE STARTING**
    - Always read progress.yaml first
    - Resume from next_action if exists
    - Never restart completed work
+
+2a. **UPDATE PROGRESS.YAML (2-step pattern)**
+   - Update task status FIRST (tasks.T7.status = in_progress)
+   - Update pointer + next_action SECOND (current.task = T7, next_action = "...")
+   - DO NOT store work_completed, work_in_progress, work_remaining arrays
+   - Derive work arrays on read by filtering tasks by status
+   - Only ONE task should have status=in_progress at a time
 
 3. **LARGE FILES NEED CHUNKING**
    - Files >100KB require chunked reading
@@ -908,11 +1149,27 @@ cat [OUTPUT_DIR]/.work/progress.yaml 2>/dev/null || echo "NO_PROGRESS_FILE"
 - Medium: 50-100KB → Monitor for truncation
 - Large: > 100KB → **Chunk required**
 
-### Checkpoint Triggers
-- After every major deliverable
-- After every phase/level complete
-- After every 5-10 minutes of work
-- Before any complex operation
+### Checkpoint Triggers (Update progress.yaml)
+- ✅ After completing work units (phases, levels, files, documents)
+- ✅ Every 5-10 minutes of active work (time-based safety net)
+- ✅ Before complex/risky operations (pre-operation safety)
+- ✅ After discovering significant findings (capture insights immediately)
+- ✅ Before phase/level/step transitions (clean resumption points)
+
+### Progress.yaml Update Pattern (2 Steps)
+1. Update task status (tasks.T7.status = "in_progress") ← **SOURCE OF TRUTH**
+2. Update pointer + next_action + timestamp (current.task = "T7", next_action = "...", last_updated = "...")
+
+**Rule:** Task status → Pointer + next_action
+
+**DO NOT STORE work arrays** - derive on read:
+- work_completed = filter tasks where status == "complete"
+- work_in_progress = filter tasks where status == "in_progress"
+- work_remaining = filter tasks where status == "not_started"
+
+**Key invariant:** Only ONE task has status="in_progress" at a time
+
+**See:** Progress.yaml Format section for full template and examples
 
 ### Memory Patterns
 1. Summarise then discard
@@ -924,9 +1181,12 @@ cat [OUTPUT_DIR]/.work/progress.yaml 2>/dev/null || echo "NO_PROGRESS_FILE"
 
 ## Version History
 
-| Version | Date       | Changes                                            |
-| ------- | ---------- | -------------------------------------------------- |
-| 1.0     | 2026-01-06 | Initial rubric created from 01c, 01e, 01f patterns |
+| Version | Date       | Changes                                                                                                               |
+| ------- | ---------- | --------------------------------------------------------------------------------------------------------------------- |
+| 1.4     | 2026-01-28 | Clarified that `.work/` directories MUST be committed to git for team collaboration and machine switching             |
+| 1.3     | 2026-01-28 | Redesigned progress.yaml format (single source of truth); work arrays derived on read; 2-step update pattern          |
+| 1.1     | 2026-01-28 | Consolidated checkpoint trigger guidance into canonical list; resolved inconsistencies in progress.yaml update timing |
+| 1.0     | 2026-01-06 | Initial rubric created from 01c, 01e, 01f patterns                                                                    |
 
 ---
 

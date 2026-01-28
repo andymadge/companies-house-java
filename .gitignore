@@ -35,9 +35,6 @@ Thumbs.db
 application-local.yml
 application-dev.yml
 
-# Work directory (implementation progress tracking)
-.work/
-
 # Test output
 test-output/
 surefire-reports/
