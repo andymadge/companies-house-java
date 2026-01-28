@@ -205,7 +205,7 @@ After completing all prompts:
 
 ```
 company-house-api/
-├── .work/implementation/                    # Internal progress tracking (gitignored)
+├── .work/implementation/                    # Progress tracking (MUST be committed to git)
 │   ├── progress.yaml
 │   ├── task-status.yaml
 │   └── files-created.yaml
@@ -356,7 +356,7 @@ A: Check the `next_action` in `progress.yaml` for exactly what to do next. Read 
 A: Prompt 05 has a STD-003 verification checklist. Also, Prompt 04 reminds you of key standards throughout.
 
 **Q: What should I commit to git?**
-A: Everything in `src/` and `docs/`. The `.work/implementation/` directory is for internal tracking (add to `.gitignore`).
+A: Everything in `src/`, `docs/`, and `.work/implementation/`. The `.work/` directory MUST be committed to git to enable resumption after context compaction, team collaboration, and machine switching. Do NOT add it to `.gitignore`.
 
 ## Support and Troubleshooting
 
