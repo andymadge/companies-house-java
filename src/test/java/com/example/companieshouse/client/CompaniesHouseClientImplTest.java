@@ -277,6 +277,30 @@ class CompaniesHouseClientImplTest {
     }
 
     @Test
+    @DisplayName("Should handle malformed Retry-After header gracefully")
+    void shouldHandleMalformedRetryAfter() {
+        // Arrange
+        String companyNumber = "09370669";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Retry-After", "not-a-number");  // Non-numeric value triggers NumberFormatException
+
+        HttpClientErrorException exception = new HttpClientErrorException(
+            HttpStatus.TOO_MANY_REQUESTS, "Rate Limited", headers, null, null
+        );
+        when(responseSpec.body(CompanyProfileResponse.class)).thenThrow(exception);
+
+        // Act & Assert
+        RateLimitExceededException rateLimitException = assertThrows(
+            RateLimitExceededException.class,
+            () -> client.getRegisteredAddress(companyNumber)
+        );
+
+        assertThat(rateLimitException.getMessage()).containsIgnoringCase("rate limit");
+        assertThat(rateLimitException.getRetryAfter()).isNull(); // Graceful degradation
+    }
+
+    @Test
     @DisplayName("Should throw CompaniesHouseAuthenticationException for HTTP 401")
     void shouldThrowAuthenticationExceptionFor401() {
         // Arrange
@@ -335,6 +359,27 @@ class CompaniesHouseClientImplTest {
         );
 
         assertThat(exception.getMessage()).contains("502");
+    }
+
+    @Test
+    @DisplayName("Should throw API exception for HTTP 503 Service Unavailable")
+    void shouldThrowApiExceptionFor503() {
+        // Arrange
+        String companyNumber = "09370669";
+
+        HttpServerErrorException exception = new HttpServerErrorException(
+            HttpStatus.SERVICE_UNAVAILABLE, "Service Unavailable"
+        );
+        when(responseSpec.body(CompanyProfileResponse.class)).thenThrow(exception);
+
+        // Act & Assert
+        CompaniesHouseApiException apiException = assertThrows(
+            CompaniesHouseApiException.class,
+            () -> client.getRegisteredAddress(companyNumber)
+        );
+
+        assertThat(apiException.getMessage()).contains("503");
+        assertThat(apiException.getMessage()).containsIgnoringCase("server error");
     }
 
     @Test
