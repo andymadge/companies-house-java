@@ -17,7 +17,9 @@
       "Bash(mvn clean:*)",
       "Bash(mvn test:*)",
       "Bash(mvn jacoco:report:*)",
-      "Bash(open target/site/jacoco/index.html)"
+      "Bash(open target/site/jacoco/index.html)",
+      "Bash(mvn:*)",
+      "Bash(git restore:*)"
     ]
   }
 }
