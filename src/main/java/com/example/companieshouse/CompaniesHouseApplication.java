@@ -15,6 +15,11 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 @ConfigurationPropertiesScan
 public class CompaniesHouseApplication {
 
+    /**
+     * Main method to run the Spring Boot application.
+     *
+     * @param args command line arguments
+     */
     public static void main(String[] args) {
         SpringApplication.run(CompaniesHouseApplication.class, args);
     }

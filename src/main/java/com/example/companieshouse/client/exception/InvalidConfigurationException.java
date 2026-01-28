@@ -19,14 +19,14 @@ package com.example.companieshouse.client.exception;
  * error rather than an API interaction error.
  *
  * <p>Example usage:
- * <pre>
+ * <pre>{@code
  * @PostConstruct
  * public void validate() {
  *     if (apiKey == null || apiKey.isBlank()) {
  *         throw new InvalidConfigurationException("API key must be provided");
  *     }
  * }
- * </pre>
+ * }</pre>
  *
  * @see com.example.companieshouse.config.CompaniesHouseProperties
  */

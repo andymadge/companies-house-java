@@ -50,8 +50,8 @@ public interface CompaniesHouseClient {
      * @throws CompanyNotFoundException if the company does not exist in the
      *         Companies House registry (HTTP 404)
      * @throws RateLimitExceededException if the API rate limit has been exceeded
-     *         (HTTP 429). Check {@link RateLimitExceededException#getRetryAfter()}
-     *         for retry duration.
+     *         (HTTP 429). Use the exception's {@code getRetryAfter()} method
+     *         to determine the retry duration in seconds.
      * @throws CompaniesHouseAuthenticationException if authentication fails due to
      *         invalid or missing API key (HTTP 401)
      * @throws CompaniesHouseApiException for other API errors such as server errors
