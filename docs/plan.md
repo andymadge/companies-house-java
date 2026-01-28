@@ -233,8 +233,8 @@ application-dev.yml
 .DS_Store
 Thumbs.db
 
-# Work directory (implementation tracking)
-.work/
+# NOTE: .work/ is intentionally NOT excluded
+# It MUST be committed to git for progress tracking, team collaboration, and machine switching
 ```
 
 ---
@@ -1190,27 +1190,65 @@ If context is compacted during implementation (Prompt 04):
 
 ```yaml
 # .work/implementation/progress.yaml
-current_task: T7
-status: in_progress
-phase: GREEN
-next_action: "Implement RestClient GET call to pass test"
-last_file_created: "CompaniesHouseClientImplTest.java"
+# UPDATE PATTERN (2 atomic operations):
+# 1. Update task status in tasks map (tasks.T7.status = in_progress)
+# 2. Update pointer + next_action + timestamp (current.task = T7)
+#
+# DO NOT STORE: work_completed, work_in_progress, work_remaining arrays
+# (derive these on read by filtering tasks by status)
+
+progress:
+  last_updated: "2026-01-27T14:30:00Z"
+
+  # Navigation pointers
+  current:
+    phase: "Phase 1 - Tasks"
+    task: "T7"
+
+  # Resumption instruction
+  next_action: "Implement RestClient GET call in CompaniesHouseClientImpl to pass test"
+
+  # Source of truth: task status
+  tasks:
+    T1_project_setup:
+      status: complete
+      completed_at: "2026-01-27T12:00:00Z"
+      commit: "a1b2c3d"
+    T2_configuration_properties:
+      status: complete
+      completed_at: "2026-01-27T12:30:00Z"
+      commit: "b2c3d4e"
+    # ... T3-T6 complete
+    T7_client_success_path:
+      status: in_progress
+      started_at: "2026-01-27T14:00:00Z"
+    T8_client_error_handling:
+      status: not_started
+    # ... T10-T11 not_started
+
+  blockers: []
+
+# DERIVED VIEWS (compute on read, never store):
+#   work_completed = [k for k, v in tasks.items() if v.status == "complete"]
+#   work_in_progress = [k for k, v in tasks.items() if v.status == "in_progress"]
+#   work_remaining = [k for k, v in tasks.items() if v.status == "not_started"]
 ```
 
-### Task Status File Format
+### Task Status File Format (Optional Backup)
 
 ```yaml
 # .work/implementation/task-status.yaml
-T1: completed
-T2: completed
-T3: completed
-T4: completed
-T5: completed
-T6: completed
+# NOTE: This is optional backup tracking. Primary source of truth is progress.yaml tasks map.
+T1: complete
+T2: complete
+T3: complete
+T4: complete
+T5: complete
+T6: complete
 T7: in_progress
-T8: pending
-T10: pending
-T11: pending
+T8: not_started
+T10: not_started
+T11: not_started
 ```
 
 ---
@@ -1224,7 +1262,12 @@ This implementation plan feeds into **Prompt 04: TDD Implementation**, which wil
 3. Write tests first, then implementation
 4. Commit working code after each task
 5. Track progress in `.work/implementation/` for context compaction survival
-6. Update progress.yaml constantly for session resumption
+6. Update progress.yaml using canonical checkpoint triggers:
+   - After completions (task done, tests pass)
+   - Every 5-10 minutes (time-based safety net)
+   - Before risky operations (refactoring)
+   - After significant findings (test failures)
+   - Before transitions (moving to next task)
 
 **SUCCESS CRITERIA**: When Prompt 04 completes:
 - All tests pass (`mvn clean test`)

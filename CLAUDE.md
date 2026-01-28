@@ -58,7 +58,7 @@ src/                              # Generated code (created by Prompt 04)
 - **pom.xml** - Maven configuration (created by Prompt 04, Task 1)
 - **application.yml** - Spring Boot configuration template
 - **application-local.yml.example** - Local development example (never commit real keys)
-- **.gitignore** - Excludes application-local.yml, .work/, and build artifacts
+- **.gitignore** - Excludes application-local.yml and build artifacts (NOTE: `.work/` MUST be committed for progress tracking)
 
 ## Execution Workflow
 
@@ -89,8 +89,9 @@ This prompt spans multiple sessions and uses **context compaction survival patte
 
 - **First Session**: Check for `.work/implementation/progress.yaml`, initialize if needed, begin tasks T1-T11
 - **Subsequent Sessions**: Start Prompt 04 again, it detects progress file and resumes from `next_action`
-- **Progress Files**: Updated after every file created, never lost on context compaction
+- **Progress Files**: Updated using canonical checkpoint triggers (after completions, every 5-10 min, before risky ops)
 - **TDD Cycle**: RED (failing test) → GREEN (pass test) → REFACTOR → COMMIT → UPDATE progress
+- **Version Control**: `.work/` directory MUST be committed to git (enables team collaboration and machine switching)
 
 Always check `.work/implementation/progress.yaml` before starting Prompt 04 implementation work.
 
