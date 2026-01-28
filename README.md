@@ -194,7 +194,7 @@ mvn test -Dtest=CompaniesHouseClientImplTest#shouldReturnRegisteredAddressForVal
 ## Testing
 
 ```bash
-# Run all tests (51 tests: 41 unit + 10 integration)
+# Run all tests (53 tests: 43 unit + 10 integration)
 mvn clean test
 
 # Run only unit tests
@@ -226,10 +226,10 @@ start target/site/jacoco/index.html
 ```
 
 **Current Coverage:**
-- **Overall**: ~90%
-- **CompaniesHouseClientImpl**: 95%
+- **Overall**: 98% instruction coverage, 96% branch coverage
+- **CompaniesHouseClientImpl**: 100%
 - **DTOs and Exceptions**: 100%
-- **Configuration**: 100%
+- **Configuration**: 100% instruction coverage, 83% branch coverage
 
 ## Architecture
 
@@ -345,8 +345,8 @@ All fields from Companies House API `registered_office_address`:
 
 ## Testing the Library
 
-### Unit Tests (41 tests)
-- `CompaniesHouseClientImplTest`: 16 tests covering success and all error scenarios
+### Unit Tests (43 tests)
+- `CompaniesHouseClientImplTest`: 18 tests covering success and all error scenarios
 - `CompaniesHousePropertiesTest`: 8 tests for configuration validation
 - `CompaniesHouseConfigTest`: 3 tests for RestClient configuration
 - `RegisteredAddressResponseTest`: 5 tests for DTO serialization
@@ -432,7 +432,7 @@ MIT
 **Version**: 1.0.0-SNAPSHOT
 **Last Updated**: 2026-01-28
 **Status**: Production Ready
-**Tests**: 51/51 passing
-**Coverage**: 95% on client implementation
+**Tests**: 53/53 passing
+**Coverage**: 98% overall, 100% on client implementation
 
 Built with ❤️ using Test-Driven Development
