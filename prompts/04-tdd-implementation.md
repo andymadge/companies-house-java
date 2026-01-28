@@ -65,6 +65,7 @@ Your implementation must satisfy all requirements and follow all standards.
     <path>.work/implementation/</path>
     <purpose>Persistent work state that survives context compaction</purpose>
     <critical>CREATE THIS DIRECTORY FIRST before any implementation work</critical>
+    <version_control>MUST be committed to git - enables team collaboration and machine switching</version_control>
 
     <required_files>
       <file name="progress.yaml">
@@ -92,58 +93,59 @@ Your implementation must satisfy all requirements and follow all standards.
 
   <progress_tracking_schema>
 ```yaml
-# .work/implementation/progress.yaml - UPDATE FREQUENTLY
+# .work/implementation/progress.yaml - UPDATE AFTER EVERY SIGNIFICANT WORK UNIT
+#
+# UPDATE PATTERN (2 atomic operations):
+# 1. Update task status in tasks map (tasks.T7.status = in_progress)
+# 2. Update pointer + next_action + timestamp (current.task = T7)
+#
+# DO NOT STORE: work_completed, work_in_progress, work_remaining arrays
+# (derive these on read by filtering tasks by status)
+#
 progress:
   last_updated: "2026-01-27T14:30:00Z"
-  current_task: "T3"  # Which task are we on?
-  current_phase: "implementation"  # Phase 0 (init), Phase 1 (tasks), Phase 2 (integration), Phase 3 (verification)
-  status: "In Progress"  # Not Started | In Progress | Blocked | Complete
 
-  # Status of each task
+  # Navigation pointers (fast resumption)
+  current:
+    phase: "Phase 1 - Tasks"
+    task: "T2"
+
+  # Resumption instruction
+  next_action: "Finish T2: CompaniesHouseProperties test is failing. Implement CompaniesHouseProperties.java with @ConfigurationProperties(prefix='companies-house'), @Data, @Validated, and validation annotations. Then run mvn test to verify."
+
+  # Source of truth: task status (the ONLY place storing actual state)
   tasks:
     T1_project_setup:
-      status: "Complete"
+      status: complete
+      started_at: "2026-01-27T11:45:00Z"
       completed_at: "2026-01-27T12:00:00Z"
-      files_created: ["pom.xml", ".gitignore", "README.md (skeleton)"]
+      commit: "a1b2c3d"
+      files_created: ["pom.xml", ".gitignore", "README.md"]
       tests_passing: true
       notes: "Maven builds successfully"
 
     T2_configuration_properties:
-      status: "In Progress"
+      status: in_progress
       started_at: "2026-01-27T12:30:00Z"
-      current_step: "refactor"  # red | green | refactor | commit
       files_created: ["CompaniesHouseProperties.java"]
-      files_in_progress: ["CompaniesHousePropertiesTest.java"]
       tests_passing: false
       notes: "Test written, need to implement class"
 
     T3_spring_config:
-      status: "Not Started"
+      status: not_started
 
-    # ... T4-T11
+    T4_response_dtos:
+      status: not_started
 
-  # Work completed this session
-  work_completed:
-    - task: "T1"
-      completed_at: "2026-01-27T12:00:00Z"
-      commit: "T1: Project setup with Maven dependencies"
+    # ... T5-T11
 
-  # What's currently being worked on
-  work_in_progress:
-    - task: "T2"
-      status: "Wrote test, implementing CompaniesHouseProperties class"
-
-  # What's remaining
-  work_remaining:
-    - "T3: Spring configuration"
-    - "T4: Response DTOs"
-    # ... rest
-
-  # Any blockers
+  # Optional: blocker tracking
   blockers: []
 
-  # CRITICAL: Exactly what to do next
-  next_action: "Finish T2: CompaniesHouseProperties test is failing. Implement CompaniesHouseProperties.java with @ConfigurationProperties(prefix='companies-house'), @Data, @Validated, and validation annotations. Then run mvn test to verify."
+# DERIVED VIEWS (compute on read, never store):
+#   work_completed = [k for k, v in tasks.items() if v.status == "complete"]
+#   work_in_progress = [k for k, v in tasks.items() if v.status == "in_progress"]
+#   work_remaining = [k for k, v in tasks.items() if v.status == "not_started"]
 ```
   </progress_tracking_schema>
 
@@ -156,9 +158,13 @@ progress:
      ```
 
   2. IF progress file exists:
-     - Read: current_task, current_phase, next_action
-     - Check: which tasks are complete
-     - Load: task-status.yaml and files-created.yaml for reference
+     - Read: current.task, current.phase, next_action
+     - Check: which tasks are complete by reading tasks map
+     - Derive work arrays from task status (DO NOT expect them to be stored):
+       * work_completed = [k for k, v in tasks.items() if v.status == "complete"]
+       * work_in_progress = [k for k, v in tasks.items() if v.status == "in_progress"]
+       * work_remaining = [k for k, v in tasks.items() if v.status == "not_started"]
+     - Load: task-status.yaml and files-created.yaml for reference (optional)
      - Resume: from next_action - do NOT restart from beginning
      - DO NOT re-read completed tasks' code
      - FOCUS: Continue exactly where you left off
@@ -176,12 +182,14 @@ progress:
      - Write clear next_action for potential resumption
      - Commit working code
 
-  5. CHECKPOINT REQUIREMENTS:
-     - After EVERY test written
-     - After EVERY file created
-     - After EVERY test passes
-     - After EVERY task completes
-     - Before ANY refactoring starts
+  5. CHECKPOINT REQUIREMENTS (see Checkpoint Triggers in STD-001):
+     - **Completion checkpoints**: After completing significant work units (task completes, tests pass)
+     - **Time-based checkpoints**: Every 5-10 minutes of active work (periodic safety net)
+     - **Pre-operation checkpoints**: Before complex/risky operations (refactoring, bulk changes)
+     - **Discovery checkpoints**: After significant findings (test failures, blockers)
+     - **Transition checkpoints**: Before moving to next task/phase (enables clean resumption)
+
+     **Rule of thumb:** If you would be frustrated to lose this progress after context compaction, checkpoint NOW.
   </resumption_protocol>
 
   <compaction_safe_practices>
@@ -247,12 +255,23 @@ For each task:
 5. Verify tests STILL PASS
 6. Commit refactoring: `git add . && git commit -m "T#: Refactor [feature] for code quality"`
 
-### Step D: UPDATE PROGRESS
-1. Update progress.yaml (set task to "Complete")
-2. Update task-status.yaml (mark task done)
-3. Update files-created.yaml (add files created)
-4. Write next_action for what comes next
-5. Commit progress: `git add .work/implementation && git commit -m "Progress: Completed T#"`
+### Step D: UPDATE PROGRESS (2-Step Atomic Pattern)
+
+**OPERATION 1: Update task status in tasks map**
+1. Set task status: `tasks.T#.status = complete`
+2. Add completed_at timestamp: `tasks.T#.completed_at = "[ISO DateTime]"`
+3. Add commit SHA: `tasks.T#.commit = "[git SHA]"`
+
+**OPERATION 2: Update pointer + next_action + timestamp**
+4. Update current pointer: `current.task = "T[next]"`
+5. Write next_action: Exactly what to do next for T[next]
+6. Update timestamp: `last_updated = "[ISO DateTime]"`
+
+**DO NOT STORE work arrays** - they are derived on read from task status
+
+7. Update task-status.yaml (optional backup tracking)
+8. Update files-created.yaml (catalog of created files)
+9. Commit progress: `git add .work/implementation && git commit -m "Progress: Completed T#"`
 
 ### Step E: MOVE TO NEXT TASK
 1. Read task description from docs/plan.md
@@ -424,7 +443,15 @@ Create in: `.work/implementation/`
    - progress.yaml is the source of truth
    - Context will compact and you will lose information
    - EVERYTHING important must be in .work/implementation/ files
-   - Checkpoint after every meaningful work unit
+   - Checkpoint: after completions, every 5-10 min, before risky ops, after findings, before transitions
+   - `.work/` directory MUST be committed to git - enables team collaboration and machine switching
+
+2a. **UPDATE PROGRESS.YAML (2-step pattern)**
+   - Update task status FIRST (tasks.T7.status = in_progress)
+   - Update pointer + next_action SECOND (current.task = T7, next_action = "...")
+   - DO NOT store work_completed, work_in_progress, work_remaining arrays
+   - Derive work arrays on read by filtering tasks by status
+   - Only ONE task should have status=in_progress at a time
 
 3. **TDD DISCIPLINE**
    - Test FIRST, always
@@ -536,12 +563,14 @@ For each task you execute:
 5. Commit: git add . && git commit -m "T#: Refactor"
 6. Update progress.yaml
 
-**UPDATE Phase**:
-1. Update progress.yaml (task → Complete)
-2. Update task-status.yaml
-3. Update files-created.yaml
-4. Write next_action
+**UPDATE Phase** (2-Step Atomic Pattern):
+1. **OPERATION 1**: Update task status in tasks map (tasks.T#.status = complete, add completed_at, commit SHA)
+2. **OPERATION 2**: Update pointer + next_action + timestamp (current.task = T[next], next_action = "...", last_updated = "...")
+3. Update task-status.yaml (optional)
+4. Update files-created.yaml (optional)
 5. Commit: git add .work/implementation && git commit -m "Progress: Completed T#"
+
+**Remember**: Work arrays (work_completed, work_in_progress, work_remaining) are DERIVED on read, never stored
 
 **MOVE TO NEXT TASK**:
 1. Read T# from docs/plan.md

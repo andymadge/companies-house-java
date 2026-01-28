@@ -87,6 +87,14 @@ requirements.md   architecture.md    plan.md        src/ code       test-report.
 **Prerequisite**: 03-implementation-planning complete
 **Special Feature**: Full context compaction survival with progress tracking
 
+**Important:** The `.work/` directory MUST be committed to git. It contains progress state that enables:
+- Resumption after context compaction
+- Team collaboration (multiple developers)
+- Machine switching (laptop to desktop)
+- CI/CD integration
+
+Do NOT add `.work/` to `.gitignore`.
+
 ---
 
 ### 05 - Comprehensive Testing
